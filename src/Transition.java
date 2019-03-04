@@ -22,7 +22,7 @@ public class Transition
         return nextState;
     }
 
-    public char move()
+    public char getMove()
     {
         return move;
     }

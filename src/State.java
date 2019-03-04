@@ -23,6 +23,15 @@ public class State
         transitions.put(input, newTransition);
     }
 
+    /**
+     * Checks if the input symbol has a transition from the current state.
+     */
+    public Transition getTransition(char input) throws RejectedTapeException
+    {
+        if(!transitions.containsKey(input)) throw new RejectedTapeException();
+        return transitions.get(input);
+    }
+
     public String getName()
     {
         return name;
