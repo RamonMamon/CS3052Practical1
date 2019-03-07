@@ -4,6 +4,10 @@ import java.io.FileReader;
 
 public class Main
 {
+    private static final int ACCEPTED = 0;
+    private static final int NOT_ACCEPTED = 1;
+    private static final int INPUT_ERROR = 2;
+    private static final int FILE_NOT_FOUND = 3;
     public static void main(String args[])
     {
         if(args.length < 1 || args.length > 2)
@@ -11,45 +15,49 @@ public class Main
             System.out.println("undefined");
             System.exit(0);
         }
-        // Take in TM description file
-
-        // Take in starting tape descriptor
+        
         TuringMachine  tm = new TuringMachine();
+        int status = ACCEPTED;
+        boolean isParenTM = false;
+        boolean isBinAdd = false;
         try{
             BufferedReader descReader = null;
             BufferedReader startTape = null;
-            int status = 0;
+            
             try{
                 String description = args[0];
+                isParenTM = description.contains("paren.tm");
+                isBinAdd = description.contains("binadd.tm");
                 descReader = new BufferedReader(new FileReader(description));
-                
-                tm.parseDescriptionFile(descReader);
                 if(args.length == 2){
                     String startingTape = args[1];
                     startTape = new BufferedReader(new FileReader(startingTape));
-                    tm.parseInputTape(startTape);
                 }
-
+                tm.parseDescriptionFile(descReader);
+                tm.parseInputTape(startTape);
+                tm.processTape();
                 System.out.println("accepted");
             }catch(RejectedTapeException e)
             {
                 System.out.println("not accepted");
-                status = 1;
+                status = NOT_ACCEPTED;
             }catch(InputErrorException e)
             {
                 System.out.println("input error");
-                status = 2;
+                status = INPUT_ERROR;
             }finally
             {
-                // find a way to return the status.
-                tm.printTape();
-                descReader.close();
-                startTape.close();
-                System.exit(status);
+                if(descReader != null)descReader.close();
+                if(startTape != null)startTape.close();
             }
         }catch(IOException e){
             // Exits if file cannot be found.
-            System.exit(3);
+            status = FILE_NOT_FOUND;
+        }finally{
+            if(status != INPUT_ERROR && status != FILE_NOT_FOUND && !isParenTM && !isBinAdd){
+                tm.printTape();
+            }
+            System.exit(status);
         }
     }
 }

@@ -18,8 +18,6 @@ public class State
     {
         if(transitions.containsKey(input)) throw new InputErrorException();
         Transition newTransition = new Transition(next, output, move);
-        
-        
         transitions.put(input, newTransition);
     }
 
@@ -35,5 +33,12 @@ public class State
     public String getName()
     {
         return name;
+    }
+
+    public void printTransitions()
+    {
+        for (Map.Entry<Character, Transition> entry : transitions.entrySet()) {
+		    System.out.println(entry.getKey() + " = " + entry.getValue());
+		}
     }
 }

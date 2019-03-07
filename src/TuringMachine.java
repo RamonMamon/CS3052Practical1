@@ -6,14 +6,13 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
-
 public class TuringMachine
 {
     private static final String WHITESPACES = "\\s+";
+    private static final char BLANK = '_';
 
     private List<Character> tape = new ArrayList<Character>();
-    private List alphabet = new ArrayList<Character>();
+    private List<Character> alphabet = new ArrayList<Character>();
     private Map<String,State> states = new HashMap<String, State>();
     private int numMoves;
 
@@ -21,21 +20,18 @@ public class TuringMachine
     private State acceptState;
     private State rejectState;
     
-    public TuringMachine()
-    {
-
-    }
-
     /**
      * Parses the Turing Machine Description File.
      */
-    public void parseDescriptionFile(BufferedReader br) throws IOException, InputErrorException
+    public void parseDescriptionFile(BufferedReader br) throws IOException, InputErrorException, RejectedTapeException
     {
         try
         {
             String line = br.readLine();
+            if(line == null) throw new InputErrorException();
+
             String[] tokens = line.split(WHITESPACES);
-            if(!tokens[0].equals("states")) throw new InputErrorException();
+            if(!tokens[0].equals("states") || tokens.length != 2) throw new InputErrorException();
 
             // Parses the States
             int numStates = Integer.parseInt(tokens[1]);
@@ -58,6 +54,7 @@ public class TuringMachine
                         rejectState = newState;
                     else throw new InputErrorException();
                 }
+                if(initialState == null) initialState = newState;
                 states.put(newState.getName(), newState);
             }
             if(acceptState == null || rejectState == null) throw new InputErrorException();
@@ -73,9 +70,12 @@ public class TuringMachine
                 // Adds symbols to the alphabet
                 alphabet.add(checkLength(tokens[i]).charAt(0));
             }
-            if(alphabetSize != alphabet.size()) throw new InputErrorException();
+            if(alphabetSize != alphabet.size() || alphabetSize == 0) throw new InputErrorException();
 
             line = br.readLine();
+
+            // If there are no transition, the machine is then put in a reject state.
+            if (line == null) throw new RejectedTapeException();
 
             // Parse Transitions
             while(line != null)
@@ -93,17 +93,17 @@ public class TuringMachine
                     throw new InputErrorException();
                 }
 
-                // If current state is null set this to the current state.
-                State currentState = states.get(state);
+                State currentState = getState(state);
 
                 // Saves the new transition.
                 char inputChar = getChar(tokens[1]);
-                String nextState = tokens[2];
+                String nextState = getState(tokens[2]).getName();
+                
                 char outputChar = getChar(tokens[3]);
                 char move = checkLength(tokens[4]).charAt(0);
+                if(move != 'R' && move != 'L') throw new InputErrorException();
                 currentState.addTransition(inputChar, nextState, outputChar, move);
-                if(initialState == null) initialState = currentState;
-
+                
                 line = br.readLine();
             }
         }catch(NumberFormatException e){
@@ -112,39 +112,50 @@ public class TuringMachine
         }
     }
 
+    /**
+     * Parses the Input tape and converts values on it according to the Description file.
+     */
     public void parseInputTape(BufferedReader br) throws IOException, InputErrorException, RejectedTapeException
     {
+        if(br == null) return;
         String line = br.readLine();
         while(line != null)
         {
             // Removes all whitespaces from the input.
-            line.replaceAll(WHITESPACES, "");
+            line = line.replaceAll(WHITESPACES, "");
             for(int i = 0; i < line.length(); i++)
             {
                 // Adds characters to the tape.
                 char currentChar = line.charAt(i);
+                if(!alphabetContains(currentChar) && currentChar != '_') throw new InputErrorException();
                 if(currentChar != ' ') tape.add(currentChar);
             }
             line = br.readLine();
         }
+    }
 
-        int stateIndex = 0;
+    public void processTape() throws RejectedTapeException, InputErrorException
+    {
+        int tapeIndex = 0;
         while(true)
         {
             // Adds a blank space to the end of the tape.
-            if(stateIndex >= tape.size()) tape.add('_');
-            char inputChar = tape.get(stateIndex);
+            if(tapeIndex >= tape.size()) tape.add(BLANK);
             
-            if(!alphabetContains(inputChar) && inputChar != '_') throw new RejectedTapeException();
-
+            char inputChar = tape.get(tapeIndex);            
             Transition transition = initialState.getTransition(inputChar);
+            
             // Change the current cell
-            tape.set(stateIndex, transition.getOutput());
+            tape.set(tapeIndex, transition.getOutput());
+
+            // FOR TESTING PURPOSES.
+            // System.out.println("Tape Index " + tapeIndex + ":" + initialState.getName() + " " + inputChar + " " + transition.toString());
             // Move tape L or R
-            if(transition.getMove() == 'L') stateIndex--;
-            else if (transition.getMove() == 'R') stateIndex++;
+            if(transition.getMove() == 'L' && tapeIndex != 0) tapeIndex--;
+            else if (transition.getMove() == 'R') tapeIndex++;
+            
             // Change current state
-            initialState = states.get(transition.getNextState());
+            initialState = getState(transition.getNextState());           
             
             if(initialState == rejectState) throw new RejectedTapeException();
             if(initialState == acceptState) break;
@@ -152,18 +163,24 @@ public class TuringMachine
         }
     }
 
+    /**
+     * Prints the Tape.
+     */
     public void printTape()
     {
         // Prints the input information.
         System.out.println(numMoves);
-        if(tape.size() == 0) System.out.println('_');
-        else
-        {
+        if(tape.size() == 0) System.out.print(BLANK);
+        else{
             int offset = 0;
             while(true)
             {
+                int ceil = offset + 1;
+                // Boolean ensures that there is at least one blank 
+                boolean atStart = (tape.size() - ceil) == 0;
+                boolean notBlank = tape.get(tape.size() - (offset + 1)) != BLANK;
                 // Increments the offset for each _ at the end of the tape.
-                if(tape.get(tape.size() - (offset + 1)) != '_')break;
+                if(atStart || notBlank)break;
                 offset++;
             }
 
@@ -181,13 +198,19 @@ public class TuringMachine
         return symbol;
     }
 
+    private State getState(String state) throws InputErrorException
+    {
+        if(!states.containsKey(state)) throw new InputErrorException();
+        return states.get(state);
+    }
+
     /**
-     * Checks if the inputted string is a single character and in the alphabet and returns it.
+     * Checks if the input string is a single character and in the alphabet and returns it.
      */
     private char getChar(String symbol)throws InputErrorException
     {
         char charSymbol = checkLength(symbol).charAt(0);
-        if(!alphabetContains(charSymbol) && charSymbol != '_') throw new InputErrorException();        
+        if(!alphabetContains(charSymbol) && charSymbol != BLANK) throw new InputErrorException();        
         return charSymbol;
     }
 

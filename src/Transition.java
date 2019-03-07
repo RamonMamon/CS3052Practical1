@@ -26,4 +26,10 @@ public class Transition
     {
         return move;
     }
+
+    @Override
+    public String toString()
+    {
+        return nextState + " " + output + " " + move;
+    }
 }
