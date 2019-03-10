@@ -10,6 +10,9 @@ public class TuringMachine
 {
     private static final String WHITESPACES = "\\s+";
     private static final char BLANK = '_';
+    private static final char SPACE = ' ';
+    private static final char RIGHT = 'R';
+    private static final char LEFT = 'L';
 
     private List<Character> tape = new ArrayList<Character>();
     private List<Character> alphabet = new ArrayList<Character>();
@@ -101,7 +104,7 @@ public class TuringMachine
                 
                 char outputChar = getChar(tokens[3]);
                 char move = checkLength(tokens[4]).charAt(0);
-                if(move != 'R' && move != 'L') throw new InputErrorException();
+                if(move != RIGHT && move != LEFT) throw new InputErrorException();
                 currentState.addTransition(inputChar, nextState, outputChar, move);
                 
                 line = br.readLine();
@@ -127,8 +130,8 @@ public class TuringMachine
             {
                 // Adds characters to the tape.
                 char currentChar = line.charAt(i);
-                if(!alphabetContains(currentChar) && currentChar != '_') throw new InputErrorException();
-                if(currentChar != ' ') tape.add(currentChar);
+                if(!alphabetContains(currentChar) && currentChar != BLANK) throw new InputErrorException();
+                if(currentChar != SPACE) tape.add(currentChar);
             }
             line = br.readLine();
         }
@@ -149,10 +152,10 @@ public class TuringMachine
             tape.set(tapeIndex, transition.getOutput());
 
             // FOR TESTING PURPOSES.
-            // System.out.println("Tape Index " + tapeIndex + ":" + initialState.getName() + " " + inputChar + " " + transition.toString());
+            System.out.println("Tape Index " + tapeIndex + ":" + initialState.getName() + " " + inputChar + " " + transition.toString());
             // Move tape L or R
-            if(transition.getMove() == 'L' && tapeIndex != 0) tapeIndex--;
-            else if (transition.getMove() == 'R') tapeIndex++;
+            if(transition.getMove() == LEFT && tapeIndex != 0) tapeIndex--;
+            else if (transition.getMove() == RIGHT) tapeIndex++;
             
             // Change current state
             initialState = getState(transition.getNextState());           

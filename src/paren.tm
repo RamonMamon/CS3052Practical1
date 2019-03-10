@@ -7,8 +7,8 @@ q3
 q4
 a +
 r -
-alphabet 4 ( ) x A
-i ( q0 A R
+alphabet 4 ( ) x s
+i ( q0 s R
 i ) r ) L
 i _ a _ L
 q0 ( q0 ( R 
@@ -20,7 +20,7 @@ q1 ( q2 x R
 q2 ) q1 x L
 q2 x q2 x R 
 q2 _ r _ R 
-q1 A q3 x R 
+q1 s q3 x R 
 q3 x q3 x R
 q3 ) q4 x R 
 q4 _ a _ R

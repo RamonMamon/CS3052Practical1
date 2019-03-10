@@ -12,7 +12,7 @@ checkZero
 checkCarryOne
 goBack
 num1
-backToNum2
+finished
 a +
 r -
 alphabet 6 1 0 # x s t
@@ -33,7 +33,7 @@ addOne x addOne x R
 addZero t addOne x R
 addZero 1 equalsOne x R 
 addZero 0 equalsZero x R
-addZero # checkZero # R
+addZero # checkZero # R 
 addZero x addZero x R
 carryOne 0 equalsZero t R 
 carryOne 1 equalsOne t R 
@@ -49,11 +49,11 @@ equalsZero _ checkZero _ R
 checkOne x checkOne x R 
 checkOne 0 r 0 R 
 checkOne 1 goBack x L
-checkOne _ a _ R
+checkOne _ r _ R
 checkZero x checkZero x R 
 checkZero 1 r _ L
 checkZero 0 goBack x L
-checkZero _ a _ R
+checkZero _ finished _ L
 goBack x goBack x L 
 goBack 0 goBack 0 L
 goBack 1 goBack 1 L
@@ -65,3 +65,8 @@ num1 0 isZero x R
 num1 s num1 s R 
 num1 x num1 x R 
 num1 # addZero # R
+finished x finished x L 
+finished 0 finished 0 L 
+finished 1 r 1 L 
+finished # finished # L
+finished s a s L
