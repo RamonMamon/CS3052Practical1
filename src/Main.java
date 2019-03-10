@@ -54,6 +54,7 @@ public class Main
             // Exits if file cannot be found.
             status = FILE_NOT_FOUND;
         }finally{
+            // TODO: Uncomment this later.
             if(status != INPUT_ERROR && status != FILE_NOT_FOUND && !isParenTM && !isBinAdd){
                 tm.printTape();
             }

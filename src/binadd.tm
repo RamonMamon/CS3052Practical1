@@ -15,10 +15,10 @@ num1
 finished
 a +
 r -
-alphabet 6 1 0 # x s t
+alphabet 7 1 0 # x s t z
 initial 1 isOne s R
 initial 0 isZero s R
-initial # addZero s R
+initial # addZero z R
 isOne 1 isOne 1 R 
 isOne 0 isOne 0 R 
 isOne # addOne # R
@@ -59,14 +59,17 @@ goBack 0 goBack 0 L
 goBack 1 goBack 1 L
 goBack # goBack # L
 goBack t goBack t L
+goBack z num1 z L
 goBack s num1 s R
 num1 1 isOne x R 
 num1 0 isZero x R 
 num1 s num1 s R 
 num1 x num1 x R 
 num1 # addZero # R
+num1 z addZero z R
 finished x finished x L 
 finished 0 finished 0 L 
 finished 1 r 1 L 
 finished # finished # L
 finished s a s L
+finished z a z L

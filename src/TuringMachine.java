@@ -152,7 +152,7 @@ public class TuringMachine
             tape.set(tapeIndex, transition.getOutput());
 
             // FOR TESTING PURPOSES.
-            System.out.println("Tape Index " + tapeIndex + ":" + initialState.getName() + " " + inputChar + " " + transition.toString());
+            // System.out.println("Tape Index " + tapeIndex + ":" + initialState.getName() + " " + inputChar + " " + transition.toString());
             // Move tape L or R
             if(transition.getMove() == LEFT && tapeIndex != 0) tapeIndex--;
             else if (transition.getMove() == RIGHT) tapeIndex++;
