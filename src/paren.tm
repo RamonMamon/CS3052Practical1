@@ -1,28 +1,28 @@
 states 8
-i
-q0
-q1
-q2
-q3
-q4
+initial
+goToEnd
+checkOpen
+checkClose
+lastOpen
+finished
 a +
 r -
 alphabet 4 ( ) x s
-i ( q0 s R
-i ) r ) L
-i _ a _ L
-q0 ( q0 ( R 
-q0 ) q0 ) R 
-q0 _ q1 _ L
-q1 ) q1 ) L
-q1 x q1 x L
-q1 ( q2 x R 
-q2 ) q1 x L
-q2 x q2 x R 
-q2 _ r _ R 
-q1 s q3 x R 
-q3 x q3 x R
-q3 ) q4 x R 
-q4 _ a _ R
-q4 ) r ) R 
-q4 x q4 x R
+initial ( goToEnd s R
+initial ) r ) L
+initial _ a _ L
+goToEnd ( goToEnd ( R 
+goToEnd ) goToEnd ) R 
+goToEnd _ checkOpen _ L
+checkOpen ) checkOpen ) L
+checkOpen x checkOpen x L
+checkOpen ( checkClose x R 
+checkClose ) checkOpen x L
+checkClose x checkClose x R 
+checkClose _ r _ R 
+checkOpen s lastOpen x R 
+lastOpen x lastOpen x R
+lastOpen ) finished x R 
+finished _ a _ R
+finished ) r ) R 
+finished x finished x R

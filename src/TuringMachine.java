@@ -148,11 +148,15 @@ public class TuringMachine
             char inputChar = tape.get(tapeIndex);            
             Transition transition = initialState.getTransition(inputChar);
             
+            // FOR TESTING PURPOSES.
+            // printTransition(tapeIndex);
+
             // Change the current cell
             tape.set(tapeIndex, transition.getOutput());
 
             // FOR TESTING PURPOSES.
             // System.out.println("Tape Index " + tapeIndex + ":" + initialState.getName() + " " + inputChar + " " + transition.toString());
+            
             // Move tape L or R
             if(transition.getMove() == LEFT && tapeIndex != 0) tapeIndex--;
             else if (transition.getMove() == RIGHT) tapeIndex++;
@@ -164,6 +168,21 @@ public class TuringMachine
             if(initialState == acceptState) break;
             numMoves++;
         }
+    }
+
+    /**
+     * Prints the tape with an arrow referring to where the head is.
+     */
+    private void printTransition(int tapeIndex)
+    {
+        for(int i = 0; i < tape.size(); i++)
+            System.out.print(tape.get(i));
+
+        System.out.println();
+        for(int i = 0; i < tapeIndex; i++)
+            System.out.print(' ');
+
+        System.out.println('^');
     }
 
     /**
