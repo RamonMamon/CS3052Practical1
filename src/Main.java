@@ -10,13 +10,29 @@ public class Main
     private static final int FILE_NOT_FOUND = 3;
     public static void main(String args[])
     {
-        if(args.length < 1 || args.length > 2)
+        
+        if(args.length < 1 || args.length > 3)
         {
             System.out.println("undefined");
             System.exit(0);
         }
+
+        String description = args[0];
+        boolean nd = false;
+        boolean hasTape = false;
         
-        TuringMachine  tm = new TuringMachine();
+        if(args[0].equals("-n"))
+        {
+            nd = true;
+            description = args[1];
+            if(args.length == 3) hasTape = true;
+        }else
+        {
+            if(args.length == 2) hasTape = true;
+        }
+        
+        TuringMachine tm = new TuringMachine();
+        NonDetTuringMachine ndtm = new NonDetTuringMachine();
         int status = ACCEPTED;
         boolean isParenTM = false;
         boolean isBinAdd = false;
@@ -25,17 +41,26 @@ public class Main
             BufferedReader startTape = null;
             
             try{
-                String description = args[0];
+                
                 isParenTM = description.contains("paren.tm");
                 isBinAdd = description.contains("binadd.tm");
                 descReader = new BufferedReader(new FileReader(description));
-                if(args.length == 2){
-                    String startingTape = args[1];
+                if(hasTape){
+                    String startingTape = (nd)? args[2] : args[1];
                     startTape = new BufferedReader(new FileReader(startingTape));
                 }
-                tm.parseDescriptionFile(descReader);
-                tm.parseInputTape(startTape);
-                tm.processTape();
+
+                if(nd)
+                {
+                    ndtm.parseDescriptionFile(descReader);
+                    ndtm.parseInputTape(startTape);
+                    ndtm.processTape();
+                }else
+                {
+                    tm.parseDescriptionFile(descReader);
+                    tm.parseInputTape(startTape);
+                    tm.processTape();
+                }
                 System.out.println("accepted");
             }catch(RejectedTapeException e)
             {
@@ -45,7 +70,8 @@ public class Main
             {
                 System.out.println("input error");
                 status = INPUT_ERROR;
-            }finally
+            }
+            finally
             {
                 if(descReader != null)descReader.close();
                 if(startTape != null)startTape.close();
@@ -55,7 +81,8 @@ public class Main
             status = FILE_NOT_FOUND;
         }finally{
             if(status != INPUT_ERROR && status != FILE_NOT_FOUND && !isParenTM && !isBinAdd){
-                tm.printTape();
+                if(nd) ndtm.printTape();
+                else tm.printTape();
             }
             System.exit(status);
         }
